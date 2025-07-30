@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:@127.0.0.1:3306/movies_db"
+}
+
+model Movie {
+  id        String   @id @default(uuid())
+  title     String
+  type      String   @default("movie")
+  director  String
+  budget    Float
+  location  String
+  duration  Int
+  year      Int
+  poster    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TVShow {
+  id        String   @id @default(uuid())
+  title     String
+  type      String   @default("tvshow")
+  director  String
+  budget    Float
+  location  String
+  duration  Int
+  startYear Int
+  endYear   Int?
+  poster    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
