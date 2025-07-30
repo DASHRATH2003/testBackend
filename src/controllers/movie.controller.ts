@@ -8,12 +8,7 @@ export const movieController = {
       console.log('Received request body:', req.body);
       const data = movieSchema.parse(req.body);
       console.log('Validated data:', data);
-      const movie = await prisma.movie.create({ 
-        data: {
-          ...data,
-          type: 'movie'
-        } 
-      });
+      const movie = await prisma.movie.create({ data });
       res.status(201).json(movie);
     } catch (error) {
       console.error('Validation error:', error);
@@ -23,6 +18,7 @@ export const movieController = {
 
   async findAll(req: Request, res: Response) {
     try {
+      console.log('Received request for movies:', req.query);
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const skip = (page - 1) * limit;
@@ -36,14 +32,10 @@ export const movieController = {
         prisma.movie.count(),
       ]);
 
-      // Add type field to each movie
-      const moviesWithType = movies.map(movie => ({
-        ...movie,
-        type: 'movie'
-      }));
+      console.log('Found movies:', movies.length, 'Total:', total);
 
       res.json({
-        data: moviesWithType,
+        data: movies,
         meta: {
           total,
           page,
@@ -52,8 +44,8 @@ export const movieController = {
         },
       });
     } catch (error) {
-      console.error('Error fetching movies:', error);
-      res.status(500).json({ error: 'Failed to fetch movies' });
+      console.error('Error in findAll:', error);
+      res.status(500).json({ error: String(error) });
     }
   },
 
@@ -64,15 +56,11 @@ export const movieController = {
       
       const movie = await prisma.movie.update({
         where: { id },
-        data: {
-          ...data,
-          type: 'movie'
-        },
+        data,
       });
       
       res.json(movie);
     } catch (error) {
-      console.error('Error updating movie:', error);
       res.status(400).json({ error: error instanceof Error ? error.message : 'Invalid request' });
     }
   },
@@ -83,7 +71,6 @@ export const movieController = {
       await prisma.movie.delete({ where: { id } });
       res.status(204).send();
     } catch (error) {
-      console.error('Error deleting movie:', error);
       res.status(400).json({ error: 'Failed to delete movie' });
     }
   },
